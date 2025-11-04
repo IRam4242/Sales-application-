@@ -311,7 +311,7 @@
             // Generate unique ID - use crypto.randomUUID() if available, otherwise fallback
             const id = (typeof crypto !== 'undefined' && crypto.randomUUID) 
                 ? crypto.randomUUID() 
-                : `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                : `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
             
             const sale = {
                 id: id,
@@ -396,9 +396,8 @@
             container.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const saleId = this.getAttribute('data-sale-id');
-                    // Parse as number if it's a numeric ID, otherwise use as string
-                    const id = isNaN(saleId) ? saleId : parseFloat(saleId);
-                    deleteSale(id);
+                    // Keep ID as string for consistency (works with both UUIDs and legacy numeric IDs)
+                    deleteSale(saleId);
                 });
             });
         }
@@ -415,7 +414,8 @@
 
         function deleteSale(id) {
             if (confirm('Are you sure you want to delete this sale?')) {
-                sales = sales.filter(sale => sale.id !== id);
+                // Convert both to strings for consistent comparison (handles both UUID and legacy numeric IDs)
+                sales = sales.filter(sale => String(sale.id) !== String(id));
                 saveSales();
                 renderSales();
                 updateStatistics();

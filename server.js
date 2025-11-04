@@ -34,8 +34,9 @@ const server = http.createServer((req, res) => {
     const baseDir = path.resolve(__dirname);
     const filePath = path.resolve(path.join(__dirname, requestPath));
     
-    // Ensure the resolved path is within the project directory (works on all platforms)
-    if (!filePath.startsWith(baseDir + path.sep) && filePath !== baseDir) {
+    // Ensure the resolved path is within the project directory using relative path check
+    const relativePath = path.relative(baseDir, filePath);
+    if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
         res.writeHead(403, { 'Content-Type': 'text/html' });
         res.end('<h1>403 - Forbidden</h1>', 'utf-8');
         return;
