@@ -305,15 +305,18 @@
         document.getElementById('saleForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const price = parseFloat(document.getElementById('price').value);
+            
             const sale = {
                 id: Date.now(),
                 productName: document.getElementById('productName').value,
-                quantity: parseInt(document.getElementById('quantity').value),
-                price: parseFloat(document.getElementById('price').value),
+                quantity: quantity,
+                price: price,
                 customer: document.getElementById('customer').value,
                 saleDate: document.getElementById('saleDate').value,
                 category: document.getElementById('category').value,
-                total: parseInt(document.getElementById('quantity').value) * parseFloat(document.getElementById('price').value)
+                total: quantity * price
             };
 
             sales.push(sale);
