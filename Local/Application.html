@@ -308,8 +308,10 @@
             const quantity = parseInt(document.getElementById('quantity').value);
             const price = parseFloat(document.getElementById('price').value);
             
-            // Generate unique ID using timestamp and random component
-            const id = Date.now() + Math.random();
+            // Generate unique ID - use crypto.randomUUID() if available, otherwise fallback
+            const id = (typeof crypto !== 'undefined' && crypto.randomUUID) 
+                ? crypto.randomUUID() 
+                : `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             
             const sale = {
                 id: id,
@@ -334,6 +336,13 @@
 
         function saveSales() {
             localStorage.setItem('sales', JSON.stringify(sales));
+        }
+
+        // Helper function to escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         function renderSales() {
@@ -364,14 +373,14 @@
             sales.forEach(sale => {
                 tableHTML += `
                     <tr>
-                        <td>${new Date(sale.saleDate).toLocaleDateString()}</td>
-                        <td>${sale.productName}</td>
-                        <td>${sale.category}</td>
-                        <td>${sale.customer}</td>
-                        <td>${sale.quantity}</td>
+                        <td>${escapeHtml(new Date(sale.saleDate).toLocaleDateString())}</td>
+                        <td>${escapeHtml(sale.productName)}</td>
+                        <td>${escapeHtml(sale.category)}</td>
+                        <td>${escapeHtml(sale.customer)}</td>
+                        <td>${escapeHtml(String(sale.quantity))}</td>
                         <td>$${sale.price.toFixed(2)}</td>
                         <td><strong>$${sale.total.toFixed(2)}</strong></td>
-                        <td><button class="delete-btn" onclick="deleteSale(${sale.id})">Delete</button></td>
+                        <td><button class="delete-btn" data-sale-id="${escapeHtml(String(sale.id))}">Delete</button></td>
                     </tr>
                 `;
             });
@@ -382,6 +391,16 @@
             `;
 
             container.innerHTML = tableHTML;
+            
+            // Add event delegation for delete buttons
+            container.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const saleId = this.getAttribute('data-sale-id');
+                    // Parse as number if it's a numeric ID, otherwise use as string
+                    const id = isNaN(saleId) ? saleId : parseFloat(saleId);
+                    deleteSale(id);
+                });
+            });
         }
 
         function updateStatistics() {

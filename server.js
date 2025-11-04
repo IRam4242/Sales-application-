@@ -22,11 +22,12 @@ const server = http.createServer((req, res) => {
     // Parse URL and construct safe file path
     let requestPath = req.url === '/' ? '/Local/Application.html' : req.url;
     
-    // Normalize and resolve path to prevent directory traversal
-    const filePath = path.normalize(path.join(__dirname, requestPath));
+    // Resolve and normalize paths to prevent directory traversal
+    const baseDir = path.resolve(__dirname);
+    const filePath = path.resolve(path.join(__dirname, requestPath));
     
-    // Ensure the resolved path is within the project directory
-    if (!filePath.startsWith(__dirname)) {
+    // Ensure the resolved path is within the project directory (works on all platforms)
+    if (!filePath.startsWith(baseDir + path.sep) && filePath !== baseDir) {
         res.writeHead(403, { 'Content-Type': 'text/html' });
         res.end('<h1>403 - Forbidden</h1>', 'utf-8');
         return;
