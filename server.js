@@ -19,10 +19,17 @@ const mimeTypes = {
 const server = http.createServer((req, res) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
 
-    // Parse URL
-    let filePath = '.' + req.url;
-    if (filePath === './') {
-        filePath = './Local/Application.html';
+    // Parse URL and construct safe file path
+    let requestPath = req.url === '/' ? '/Local/Application.html' : req.url;
+    
+    // Normalize and resolve path to prevent directory traversal
+    const filePath = path.normalize(path.join(__dirname, requestPath));
+    
+    // Ensure the resolved path is within the project directory
+    if (!filePath.startsWith(__dirname)) {
+        res.writeHead(403, { 'Content-Type': 'text/html' });
+        res.end('<h1>403 - Forbidden</h1>', 'utf-8');
+        return;
     }
 
     // Get file extension

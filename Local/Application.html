@@ -308,8 +308,11 @@
             const quantity = parseInt(document.getElementById('quantity').value);
             const price = parseFloat(document.getElementById('price').value);
             
+            // Generate unique ID using timestamp and random component
+            const id = Date.now() + Math.random();
+            
             const sale = {
-                id: Date.now(),
+                id: id,
                 productName: document.getElementById('productName').value,
                 quantity: quantity,
                 price: price,
