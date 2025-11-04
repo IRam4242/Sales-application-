@@ -19,8 +19,16 @@ const mimeTypes = {
 const server = http.createServer((req, res) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
 
-    // Parse URL and construct safe file path
-    let requestPath = req.url === '/' ? '/Local/Application.html' : req.url;
+    // Parse and sanitize URL
+    let requestPath;
+    try {
+        const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+        requestPath = url.pathname === '/' ? '/Local/Application.html' : url.pathname;
+    } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'text/html' });
+        res.end('<h1>400 - Bad Request</h1>', 'utf-8');
+        return;
+    }
     
     // Resolve and normalize paths to prevent directory traversal
     const baseDir = path.resolve(__dirname);
