@@ -289,8 +289,14 @@
     </div>
 
     <script>
-        // Initialize sales array from localStorage or empty array
-        let sales = JSON.parse(localStorage.getItem('sales')) || [];
+        // Initialize sales array from localStorage with error handling
+        let sales = [];
+        try {
+            sales = JSON.parse(localStorage.getItem('sales')) || [];
+        } catch (e) {
+            console.error('Failed to parse sales data from localStorage:', e);
+            sales = [];
+        }
 
         // Set today's date as default
         document.getElementById('saleDate').valueAsDate = new Date();
@@ -378,8 +384,8 @@
                         <td>${escapeHtml(sale.category)}</td>
                         <td>${escapeHtml(sale.customer)}</td>
                         <td>${escapeHtml(String(sale.quantity))}</td>
-                        <td>$${sale.price.toFixed(2)}</td>
-                        <td><strong>$${sale.total.toFixed(2)}</strong></td>
+                        <td>$${escapeHtml(sale.price.toFixed(2))}</td>
+                        <td><strong>$${escapeHtml(sale.total.toFixed(2))}</strong></td>
                         <td><button class="delete-btn" data-sale-id="${escapeHtml(String(sale.id))}">Delete</button></td>
                     </tr>
                 `;
